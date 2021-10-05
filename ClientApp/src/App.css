@@ -1,0 +1,23 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}
+
+.App {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 300px auto;
+    transition: ease-in 0.3s;
+}
+
+.App__ClosedLeftMenu {
+    grid-template-columns: 30px auto;
+}

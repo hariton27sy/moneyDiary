@@ -1,0 +1,6 @@
+.LeftMenu {
+    height: 100%;
+    width: 100%;
+    background-color: cadetblue;
+    transition: ease-in 0.3s;
+}
