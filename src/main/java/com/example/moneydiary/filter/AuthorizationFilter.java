@@ -1,8 +1,10 @@
 package com.example.moneydiary.filter;
 
 import com.example.moneydiary.model.RequestContext;
+import com.example.moneydiary.model.UserShortSession;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,9 +29,19 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        logger.info("Authorization filter");
-
+//        UserShortSession user = getContext().getUser();
+//        if (user == null || user.isExpired()) {
+//            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//            return;
+//        }
+        // Now any user can get access to any controller;
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/api/auth") || path.startsWith("/swagger");
     }
 
     @NotNull

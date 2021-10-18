@@ -1,7 +1,7 @@
 package com.example.moneydiary.filter;
 
 import com.example.moneydiary.model.RequestContext;
-import com.example.moneydiary.model.UserShortSession;
+import com.example.moneydiary.service.IUserSessionService;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -25,9 +25,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 
     private final ObjectFactory<RequestContext> requestContextProvider;
+    private IUserSessionService userSessionService;
 
-    public AuthenticationFilter(ObjectFactory<RequestContext> requestContextProvider) {
+    public AuthenticationFilter(ObjectFactory<RequestContext> requestContextProvider, IUserSessionService userSessionService) {
         this.requestContextProvider = requestContextProvider;
+        this.userSessionService = userSessionService;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
 
         RequestContext requestContext = requestContextProvider.getObject();
-        requestContext.setUser(new UserShortSession());
+        requestContext.setUser(userSessionService.getUserSession(authorizationString));
 
         filterChain.doFilter(request, response);
     }
