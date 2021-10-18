@@ -1,22 +1,22 @@
-package com.example.moneydiary.model;
+package com.example.moneydiary.dto;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class UserDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Column(unique = true)
     private String username;
     private String password;
     private String email;
 
-    protected User(){}
+    protected UserDto(){}
 
-    public User(String username, String password, String email){
-
+    public UserDto(String username, String password, String email){
         this.username = username;
         this.password = password;
         this.email = email;
