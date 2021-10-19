@@ -8,8 +8,16 @@ public class ExpensesSummary {
         return totalAmount;
     }
 
-    public void setTotalAmount(Double totalAmout) {
-        this.totalAmount = totalAmout;
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public ExpensesSummary() {
+
+    }
+
+    public ExpensesSummary(Double totalAmount) {
+        setTotalAmount(totalAmount);
     }
 
     //TODO: add fields
