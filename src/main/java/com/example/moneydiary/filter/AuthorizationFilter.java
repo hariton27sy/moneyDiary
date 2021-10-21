@@ -1,5 +1,6 @@
 package com.example.moneydiary.filter;
 
+import com.example.moneydiary.Constants;
 import com.example.moneydiary.model.RequestContext;
 import com.example.moneydiary.model.UserShortSession;
 import org.springframework.beans.factory.ObjectFactory;
@@ -29,19 +30,33 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        UserShortSession user = getContext().getUser();
-//        if (user == null || user.isExpired()) {
-//            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//            return;
-//        }
-        // Now any user can get access to any controller;
+        UserShortSession user = getContext().getUser();
+        String path = request.getServletPath();
+        if (user == null || user.isExpired()) {
+            if (path.startsWith("/api")) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return;
+            }
+
+            response.setStatus(HttpStatus.TEMPORARY_REDIRECT.value());
+
+            String location;
+            if (user == null) {
+                location = String.format("/login.html?%s=%s", Constants.REDIRECT_PATH_QUERY, path);
+            } else {
+                location = String.format("/api/auth/refreshToken?%s=%s", Constants.REDIRECT_PATH_QUERY, path);
+            }
+            response.setHeader("Location", location);
+            return;
+        }
+
         filterChain.doFilter(request, response);
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/api/auth") || path.startsWith("/swagger");
+        return path.startsWith("/api/auth") || path.startsWith("/login.html");
     }
 
     @NotNull

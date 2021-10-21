@@ -8,9 +8,11 @@ import com.example.moneydiary.model.UserShortSession;
 import com.example.moneydiary.repository.UserDtoRepository;
 import com.example.moneydiary.service.IUserSessionService;
 import com.example.moneydiary.service.PasswordEncryptor;
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -38,8 +40,8 @@ public class AuthenticationController {
         this.userSessionService = userSessionService;
     }
 
-    @PostMapping("login")
-    public ResponseEntity<UserCredentials> login(@RequestParam String username, @RequestParam String password, HttpServletResponse response) {
+    @GetMapping("login")
+    public ResponseEntity<UserCredentials> login(@RequestParam String username, @RequestParam String password, HttpServletResponse response, @RequestParam(required = false, name = Constants.REDIRECT_PATH_QUERY) String redirectPath) {
         UserDto user = userDtoRepository.findByUsername(username);
 
         if (user == null || !passwordEncryptor.checkPassword(password, user.getPassword())) {
@@ -48,17 +50,11 @@ public class AuthenticationController {
 
         UserCredentials credentials = userSessionService.createAndWriteUserSession(user);
 
-        Cookie authorizationCookie = new Cookie(Constants.AUTHORIZATION_TOKEN_COOKIE, credentials.getRefreshToken());
-        authorizationCookie.setHttpOnly(true);
-        authorizationCookie.setPath("/api/auth");
-
-        response.addCookie(authorizationCookie);
-
-        return new ResponseEntity<>(credentials, HttpStatus.OK);
+        return setCookieAndReturnResponse(credentials, response, redirectPath);
     }
 
-    @PostMapping("logout")
-    public ResponseEntity logout(@CookieValue(name = refreshTokenCookie) UUID refreshToken, HttpServletResponse response) {
+    @GetMapping("logout")
+    public ResponseEntity logout(@CookieValue(name = Constants.REFRESH_TOKEN_COOKIE) UUID refreshToken, HttpServletResponse response) {
         RequestContext context = requestContextProvider.getObject();
         UserShortSession userShortSession = context.getUser();
         if (userShortSession == null)
@@ -69,13 +65,14 @@ public class AuthenticationController {
             return new ResponseEntity(HttpStatus.FORBIDDEN);
 
         userSessionService.invalidateSession(userDto.get(), refreshToken);
-        response.addCookie(new Cookie(Constants.AUTHORIZATION_TOKEN_COOKIE, null));
+        response.addCookie(new Cookie(Constants.REFRESH_TOKEN_COOKIE, null));
+        response.addCookie(new Cookie(Constants.ACCESS_TOKEN_COOKIE, null));
 
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping("refreshToken")
-    public ResponseEntity<UserCredentials> refreshToken(@CookieValue(name = refreshTokenCookie) UUID refreshToken, HttpServletResponse response) {
+    @GetMapping("refreshToken")
+    public ResponseEntity<UserCredentials> refreshToken(@CookieValue(name = refreshTokenCookie) UUID refreshToken, @RequestParam(required = false, name = Constants.REDIRECT_PATH_QUERY) String redirectPath, HttpServletResponse response) {
         RequestContext context = requestContextProvider.getObject();
         UserShortSession session = context.getUser();
         if (session == null || refreshToken == null)
@@ -89,13 +86,7 @@ public class AuthenticationController {
         if (newCredentials == null)
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
-        Cookie authorizationCookie = new Cookie(Constants.AUTHORIZATION_TOKEN_COOKIE, newCredentials.getRefreshToken());
-        authorizationCookie.setHttpOnly(true);
-        authorizationCookie.setPath("/api/auth");
-
-        response.addCookie(authorizationCookie);
-
-        return new ResponseEntity<>(newCredentials, HttpStatus.OK);
+        return setCookieAndReturnResponse(newCredentials, response, redirectPath);
     }
 
     @PostMapping("addUser")
@@ -108,5 +99,23 @@ public class AuthenticationController {
         userDtoRepository.save(new UserDto(username, passwordEncryptor.encryptPassword(password), "test@example.com"));
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    private ResponseEntity<UserCredentials> setCookieAndReturnResponse(UserCredentials credentials, HttpServletResponse response, String redirectPath) {
+        Cookie refreshCookie = new Cookie(Constants.REFRESH_TOKEN_COOKIE, credentials.getRefreshToken());
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/api/auth");
+
+        response.addCookie(refreshCookie);
+        Cookie accessCookie = new Cookie(Constants.ACCESS_TOKEN_COOKIE, credentials.getAccessToken());
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
+
+        if (redirectPath != null){
+            response.setHeader(Constants.LocationHeader, redirectPath);
+            return new ResponseEntity<>(credentials, HttpStatus.TEMPORARY_REDIRECT);
+        }
+
+        return new ResponseEntity<>(credentials, HttpStatus.OK);
     }
 }

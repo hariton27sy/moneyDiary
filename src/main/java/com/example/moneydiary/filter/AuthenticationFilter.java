@@ -1,5 +1,6 @@
 package com.example.moneydiary.filter;
 
+import com.example.moneydiary.Constants;
 import com.example.moneydiary.model.RequestContext;
 import com.example.moneydiary.service.IUserSessionService;
 import org.springframework.beans.factory.ObjectFactory;
@@ -9,9 +10,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 
 /**
@@ -36,14 +39,37 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Try to get token
         logger.info("Authentication filter");
-        String authorizationString = request.getHeader(AuthorizationHeader);
-        if (authorizationString != null && !authorizationString.isBlank()){
-            authorizationString = authorizationString.replace(AuthorizationType, "").trim();
-        }
+        String accessToken = getAccessToken(request);
 
         RequestContext requestContext = requestContextProvider.getObject();
-        requestContext.setUser(userSessionService.getUserSession(authorizationString));
+        requestContext.setUser(userSessionService.getUserSession(accessToken));
 
         filterChain.doFilter(request, response);
+    }
+
+    private String getAccessToken(HttpServletRequest request) {
+        String accessToken = getAccessTokenFromCookie(request);
+        if (accessToken != null)
+            return accessToken;
+
+        accessToken = request.getHeader(AuthorizationHeader);
+        if (accessToken != null && !accessToken.isBlank())
+            return accessToken.replace(AuthorizationType, "").trim();
+
+        return null;
+    }
+
+    private String getAccessTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null)
+            return null;
+
+        for (Cookie cookie : cookies) {
+            if (Objects.equals(cookie.getName(), Constants.ACCESS_TOKEN_COOKIE)) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
     }
 }
