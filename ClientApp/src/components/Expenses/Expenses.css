@@ -1,0 +1,21 @@
+.Expenses_Item {
+    position: relative;
+    background-color: #EEEEEE;
+    border: solid 1px #DDDDDD;
+    margin-top: 10px;
+}
+
+.Expenses_Item h2 {
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.Expenses_Item_Remove {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background-color: #333333;
+    color: #EEEEEE;
+    padding: 4px;
+}

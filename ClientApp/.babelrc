@@ -1,7 +1,3 @@
 {
-  // Насколько я понял Бабель исполняет эти пресеты с последенго по первый
-  "presets": [
-    "@babel/env",
-    "@babel/preset-react"
-  ]
+    "presets": ["@babel/preset-env", "@babel/preset-react"]
 }

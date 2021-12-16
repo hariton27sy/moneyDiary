@@ -1,23 +1,23 @@
-body, html {
-    margin: 0;
-    padding: 0;
+html, body {
     height: 100%;
-    width: 100%;
+    margin: 0;
+    background-color: white;
 }
 
 #root {
-    width: 100%;
     height: 100%;
 }
 
 .App {
-    height: 100%;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 300px auto;
-    transition: ease-in 0.3s;
+    background-color: bisque;
+    height: 100%
 }
 
-.App__ClosedLeftMenu {
-    grid-template-columns: 30px auto;
+.RightPart {
+    position: absolute;
+    left: 300px;
+    width: calc(100% - 300px);
+    min-height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
 }
