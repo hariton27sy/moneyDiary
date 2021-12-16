@@ -14,6 +14,10 @@ public class Expense {
     private Long expenseId;
 
     @Column
+    @Hidden
+    private Long userId;
+
+    @Column
     protected String name;
 
     @Column
@@ -38,14 +42,15 @@ public class Expense {
         setDateTime(expense.getDateTime());
         setCategoryId(expense.getCategoryId());
         setDescription(expense.getDescription());
+        setUserId(expense.getUserId());
         this.expenseId = expenseId;
     }
 
     @Override
     public String toString() {
         return String.format(
-                "Expense[id=%d, name=%s, amount=%s, dateTime=%s, categoryId=%d, description=%s]",
-                expenseId, name, amount, dateTime, categoryId, description
+                "Expense[id=%d, name=%s, amount=%s, dateTime=%s, categoryId=%d, description=%s, userId=%d]",
+                expenseId, name, amount, dateTime, categoryId, description, userId
         );
     }
 
@@ -92,5 +97,11 @@ public class Expense {
 
     public Long getExpenseId() {
         return expenseId;
+    }
+
+    public void setUserId(Long userId) { this.userId = userId; }
+
+    public Long getUserId() {
+        return userId;
     }
 }

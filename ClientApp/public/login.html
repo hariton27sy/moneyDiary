@@ -5,12 +5,13 @@
     <title>Title</title>
 </head>
 <body onload="loadPage()">
-    <form action="/api/auth/login" method="get">
-        <input type="text" name="username" placeholder="Введите почту"/>
-        <input type="password" name="password" placeholder="Введите пароль"/>
-        <input type="submit" value="Войти"/>
-        <input type="hidden" name="redirect" value=""/>
-    </form>
+<form action="/api/auth/login" method="get">
+    <input type="text" name="username" placeholder="Введите почту"/>
+    <input type="password" name="password" placeholder="Введите пароль"/>
+    <input type="submit" value="Войти"/>
+    <input type="hidden" name="redirect" value=""/>
+    <a href="/registration">Страница регистрации</a>
+</form>
 <script type="text/javascript">
     function getParameterByName(name, url = window.location.href) {
         name = name.replace(/[\[\]]/g, '\\$&');
@@ -22,11 +23,11 @@
     }
 
     function loadPage() {
-        alert('Test');
         let redirect = getParameterByName('redirect');
         let inp = document.getElementsByName('redirect')[0];
         inp.value = redirect;
     }
+
 </script>
 </body>
 </html>
