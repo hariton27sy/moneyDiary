@@ -4,6 +4,14 @@ export default class Api {
     }
 
     getCategories() {
-        
+        return null;
+    }
+
+    getExpenses(filters) {
+        return null;
+    }
+
+    removeExpense(id) {
+        return null;
     }
 }

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body onload="loadPage()">
+    <form action="/api/auth/login" method="get">
+        <input type="text" name="username" placeholder="Введите логин"/>
+        <input type="password" name="password" placeholder="Введите пароль"/>
+        <input type="submit" value="Войти"/>
+        <input type="hidden" name="redirect" value=""/>
+    </form>
+<script type="text/javascript">
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    function loadPage() {
+        alert('Test');
+        let redirect = getParameterByName('redirect');
+        let inp = document.getElementsByName('redirect')[0];
+        inp.value = redirect;
+    }
+</script>
+</body>
+</html>
