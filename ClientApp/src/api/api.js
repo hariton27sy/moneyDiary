@@ -2,7 +2,7 @@ var API_ADDRESS = "http://localhost:8080/"
 
 export default class Api {
     getUserInfo() {
-        return fetch(API_ADDRESS + "userInfo").then(r => r.json())
+        return fetch(API_ADDRESS + "api/userInfo").then(r => r.json())
     }
 
     getCategories() {
