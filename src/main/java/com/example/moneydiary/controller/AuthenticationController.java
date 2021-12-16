@@ -42,7 +42,7 @@ public class AuthenticationController {
 
     @GetMapping("login")
     public ResponseEntity<UserCredentials> login(@RequestParam String username, @RequestParam String password, HttpServletResponse response, @RequestParam(required = false, name = Constants.REDIRECT_PATH_QUERY) String redirectPath) {
-        UserDto user = userDtoRepository.findByUsername(username);
+        UserDto user = userDtoRepository.findByEmail(username);
 
         if (user == null || !passwordEncryptor.checkPassword(password, user.getPassword())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);

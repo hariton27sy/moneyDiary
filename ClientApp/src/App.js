@@ -21,7 +21,7 @@ import Summary from "./components/SummaryStatistics/Summary";
 export default class App extends Component {
     constructor(props) {
         super(props);
-        this.api = new FakeApi();
+        this.api = new Api();
     }
 
     render() {
