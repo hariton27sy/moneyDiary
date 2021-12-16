@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 @RestController
@@ -81,15 +78,8 @@ public class MoneyDiaryController {
             @RequestParam Optional<String> keyword
     ) {
         var user = getUser();
-        var expenses = expenseRepository.getExpenses(user.getUserId());
 
-        var result = expenses
-                .stream()
-                .filter(expense -> from.filter(x -> !expense.getDateTime().isAfter(x)).isEmpty())
-                .filter(expense -> to.filter(x -> !expense.getDateTime().isBefore(x)).isEmpty())
-                .filter(expense -> categoryId.filter(x -> !Objects.equals(expense.getCategoryId(), x)).isEmpty())
-                .filter(expense -> keyword.filter(x -> !(expense.getName().contains(x) || expense.getDescription().contains(x))).isEmpty())
-                .toList();
+        var result = getExpensesByFilters(user, from, to, categoryId, keyword);
 
         return new Expenses(result);
     }
@@ -102,18 +92,48 @@ public class MoneyDiaryController {
                 .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 
+    private List<Expense> getExpensesByFilters(
+            UserDto user,
+            Optional<LocalDateTime> from,
+            Optional<LocalDateTime> to,
+            Optional<Long> categoryId,
+            Optional<String> keyword
+    ) {
+        var expenses = expenseRepository.getExpenses(user.getUserId());
+
+        return expenses
+                .stream()
+                .filter(expense -> from.filter(x -> !expense.getDateTime().isAfter(x)).isEmpty())
+                .filter(expense -> to.filter(x -> !expense.getDateTime().isBefore(x)).isEmpty())
+                .filter(expense -> categoryId.filter(x -> !Objects.equals(expense.getCategoryId(), x)).isEmpty())
+                .filter(expense -> keyword.filter(x -> !(expense.getName().contains(x) || expense.getDescription().contains(x))).isEmpty())
+                .toList();
+    }
+
     @GetMapping("/expenses/summary")
     public @ResponseBody
-    ExpensesSummary getExpensesSummary(@RequestParam Long skip, @RequestParam Long take) {
+    ExpensesSummary getExpensesSummary(
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            @RequestParam Optional<LocalDateTime> from,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            @RequestParam Optional<LocalDateTime> to,
+            @RequestParam Optional<Long> categoryId,
+            @RequestParam Optional<String> keyword
+    ) {
 
         var user = getUser();
-        var expenses = expenseRepository.getExpenses(user.getUserId(), skip, take);
+        var result = getExpensesByFilters(user, from, to, categoryId, keyword);
         var totalAmount = 0.0;
+        var totalAmountByCategoryId = new HashMap<Long, Double>();
 
-        for (Expense expense : expenses) {
+        for (Expense expense : result) {
             totalAmount += expense.getAmount();
+
+            var updatedTotalAmountByCategory  =
+                    totalAmountByCategoryId.getOrDefault(expense.getCategoryId(), 0.0) + expense.getAmount();
+            totalAmountByCategoryId.put(expense.getCategoryId(), updatedTotalAmountByCategory);
         }
 
-        return new ExpensesSummary(totalAmount);
+        return new ExpensesSummary(totalAmount, totalAmountByCategoryId);
     }
 }
