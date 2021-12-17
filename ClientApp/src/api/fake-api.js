@@ -133,7 +133,6 @@ export default class FakeApi {
     }
 
     getUserInfo() {
-        return Promise.resolve(null);
         return Promise.resolve({
             userId: "guidId",
             username: "Иванов Иван Иваныч",

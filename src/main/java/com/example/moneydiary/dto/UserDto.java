@@ -13,13 +13,15 @@ public class UserDto {
     private String username;
     private String password;
     private String email;
+    private String imgLink;
 
     protected UserDto(){}
 
-    public UserDto(String username, String password, String email){
+    public UserDto(String username, String password, String email, String imgLink){
         this.username = username;
         this.password = password;
         this.email = email;
+        this.imgLink = imgLink;
     }
 
     public String getUsername() {
@@ -41,5 +43,9 @@ public class UserDto {
     @Override
     public String toString() {
         return String.format("User[id=%d, username=%s, email=%s]", userId, username, email);
+    }
+
+    public String getImgLink() {
+        return imgLink;
     }
 }

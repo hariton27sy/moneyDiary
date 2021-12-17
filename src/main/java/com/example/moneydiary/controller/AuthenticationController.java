@@ -65,8 +65,10 @@ public class AuthenticationController {
             return new ResponseEntity(HttpStatus.FORBIDDEN);
 
         userSessionService.invalidateSession(userDto.get(), refreshToken);
+        var accessCookie = new Cookie(Constants.ACCESS_TOKEN_COOKIE, null);
+        accessCookie.setPath("/");
         response.addCookie(new Cookie(Constants.REFRESH_TOKEN_COOKIE, null));
-        response.addCookie(new Cookie(Constants.ACCESS_TOKEN_COOKIE, null));
+        response.addCookie(accessCookie);
 
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -96,7 +98,7 @@ public class AuthenticationController {
         if (!clientAddress.isLoopbackAddress())
             return new ResponseEntity(HttpStatus.FORBIDDEN);
 
-        userDtoRepository.save(new UserDto(username, passwordEncryptor.encryptPassword(password), "test@example.com"));
+        userDtoRepository.save(new UserDto(username, passwordEncryptor.encryptPassword(password), "test@example.com", null));
 
         return new ResponseEntity(HttpStatus.OK);
     }
