@@ -2,6 +2,7 @@ package com.example.moneydiary.controller;
 
 import com.example.moneydiary.dto.UserDto;
 import com.example.moneydiary.model.*;
+import com.example.moneydiary.repository.CategoryRepository;
 import com.example.moneydiary.repository.ExpenseRepository;
 import com.example.moneydiary.repository.UserDtoRepository;
 import com.example.moneydiary.service.PasswordEncryptor;
@@ -24,6 +25,7 @@ public class MoneyDiaryController {
     private UserDtoRepository userDtoRepository;
     private PasswordEncryptor passwordEncryptor;
     private ObjectFactory<RequestContext> requestContextObjectFactory;
+    private CategoryRepository categoryRepository;
 
 
     @Autowired
@@ -31,12 +33,14 @@ public class MoneyDiaryController {
             ExpenseRepository expenseRepository,
             UserDtoRepository userDtoRepository,
             PasswordEncryptor passwordEncryptor,
-            ObjectFactory<RequestContext> requestContextObjectFactory) {
+            ObjectFactory<RequestContext> requestContextObjectFactory,
+            CategoryRepository categoryRepository) {
 
         this.expenseRepository = expenseRepository;
         this.userDtoRepository = userDtoRepository;
         this.passwordEncryptor = passwordEncryptor;
         this.requestContextObjectFactory = requestContextObjectFactory;
+        this.categoryRepository = categoryRepository;
     }
 
     private UserDto getUser() {
@@ -52,6 +56,12 @@ public class MoneyDiaryController {
 
         var user = getUser();
         expenses.forEach(expense -> expense.setUserId(user.getUserId()));
+        for (Expense expense: expenses) {
+            if (expense.getDateTime() == null)
+                expense.setDateTime(LocalDateTime.now());
+            if (expense.getCategoryId() == null)
+                expense.setCategoryId(5L);
+        }
 
         return new Expenses(expenseRepository.saveAll(expenses));
     }
@@ -90,6 +100,13 @@ public class MoneyDiaryController {
         return expenseRepository.findById(expenseId)
                 .map(expense -> new ResponseEntity<>(expense, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity getCategories() {
+        var categories = categoryRepository.findAll();
+
+        return ResponseEntity.ok(categories);
     }
 
     private List<Expense> getExpensesByFilters(

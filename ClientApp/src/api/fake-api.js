@@ -10,121 +10,9 @@ export default class FakeApi {
                     picture: "https://notsite",
                     value: Math.random() * 420,
                     currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00",
-                    categories: [1, 2]
-                },
-                {
-                    id: "2",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "3",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "4",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "5",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "6",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "7",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "8",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "9",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "10",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "11",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                {
-                    id: "12",
-                    name: "Продукты",
-                    description: "Молоко, соль, сахар, something",
-                    picture: "https://notsite",
-                    value: 420,
-                    currency: "rub",
-                    date: "2021-12-12",
-                    time: "01:02:00"
-                },
-                
+                    date_time: "212013123",
+                    categoryId: 1
+                }
             ]
         };
 
@@ -143,12 +31,12 @@ export default class FakeApi {
     getCategories() {
         return Promise.resolve([
             {
-                id: 1,
-                name: "Продукты"
+                categoryId: 1,
+                categoryName: "Продукты"
             },
             {
-                id: 2,
-                name: "Бытовая техника"
+                categoryId: 2,
+                categoryName: "Бытовая техника"
             }
         ])
     }
@@ -161,8 +49,30 @@ export default class FakeApi {
         return Promise.resolve(200);
     }
 
-    getExpenses() {
+    getExpenses(filter) {
+        console.log("Get Expenses");
+        console.log(filter);
         return Promise.resolve(this.expenses);
+    }
+
+    addExpense(expense) {
+        console.log(expense);
+        return Promise.resolve(200);
+    }
+
+    getSummary(filter) {
+        console.log(filter);
+        return Promise.resolve({
+            "totalAmount": 3.57968058305E11,
+            "totalAmountByCategoryId": {
+                "1": 123.0,
+                "2": 3.57967934936E11
+            }
+        });
+    }
+
+    exit(){
+        return Promise.resolve(200);
     }
 
 }

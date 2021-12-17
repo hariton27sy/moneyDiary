@@ -23,7 +23,7 @@ public class Expense {
     @Column
     protected Double amount;
 
-    @Column(name = "date_time")
+    @Column(name = "date_time", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     protected LocalDateTime dateTime;
 
     @Column(name = "category_id")

@@ -19,7 +19,8 @@ export default function LeftMenu(props) {
         redirect("/register.html");
     return (
         <div className="LeftMenu">
-
+            <input type="button" value="Add expense" onClick={props.onAddExpense} />
+            <input type="button" value="Exit" onClick={() => exit(props.api)} />
             <User userInfo={user} />
             <ul className="LeftMenu_Links">
                 <li><Link className="LeftMenu_Link" to="/">Summary</Link></li>
@@ -28,6 +29,10 @@ export default function LeftMenu(props) {
             </ul>
         </div>
     )
+}
+
+function exit(api) {
+    return api.exit().then(r => redirect("/"));
 }
 
 function User(props) {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Component } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { dateToInputDateFormat } from "../../utils/utils"
+import { dateToInputDateFormat, dateTimeToBackendFormat } from "../../utils/utils"
 import "./Expenses.css"
 
 
@@ -18,7 +18,7 @@ class ExpensesComp extends Component {
             from = new Date(day.getFullYear(), day.getMonth(), 1);
             to = day;
         }
-        this.state = { from: from, to: to, data: [], categories: [] }
+        this.state = { from: from, to: to, data: [], categories: [], category: "Все"}
 
         this.onChangeFromDate = this.onChangeFromDate.bind(this);
         this.onChangeToDate = this.onChangeToDate.bind(this);
@@ -27,6 +27,7 @@ class ExpensesComp extends Component {
         this.get_expenses = this.get_expenses.bind(this);
         this.getCategoryName = this.getCategoryName.bind(this);
         this.onRemoveItem = this.onRemoveItem.bind(this);
+        this.onChangeCategory = this.onChangeCategory.bind(this);
     }
 
     componentDidMount() {
@@ -45,6 +46,12 @@ class ExpensesComp extends Component {
                 <div className="Expenses_Filter">
                     <label>From: <input type="date" value={from} onChange={this.onChangeFromDate} /></label>
                     <label>To: <input type="date" value={to} onChange={this.onChangeToDate} /></label>
+                    <label>Category:
+                        <select onChange={this.onChangeCategory} value={this.state.category}>
+                            <option>Все</option>
+                            {this.state.categories.map(c => <option key={c.categoryId}>{c.categoryName}</option>)}
+                        </select>
+                    </label>
                     <input type="button" value="Apply" onClick={this.onClick} />
                 </div>
                 <div className="Expenses_List">
@@ -57,23 +64,27 @@ class ExpensesComp extends Component {
     renderItem(item) {
         return (
             <div className="Expenses_Item" key={item.id}>
-                <div className="Expenses_Item_Remove" onClick={e => this.onRemoveItem(e, item.id)}>Remove</div>
+                <div className="Expenses_Item_Remove" onClick={e => this.onRemoveItem(e, item.expenseId)}>Remove</div>
                 <h2 className="Expenses_Item_Name">{item.name}</h2>
                 <p className="Expenses_Item_Description"><b>Description:</b> {item.description}</p>
-                <p className="Expenses_Item_Value"><b>Value:</b> {item.value} {item.currency}</p>
-                {item.categories && <p className="Expenses_Item_Categories"><b>Категории: </b> {item.categories.map(this.getCategoryName).join(", ")}</p>}
+                <p className="Expenses_Item_Value"><b>Value:</b> {item.amount} у.е.</p>
+                {item.categoryId && <p className="Expenses_Item_Categories"><b>Категория: </b> {this.getCategoryName(item.categoryId)}</p>}
+                <p className="Expenses_Item_Date"><b>Дата-время:</b> {item.dateTime}</p>
             </div>
         )
     }
 
     getCategoryName(categoryId) {
-        return this.state.categories.find(c => c.id == categoryId)?.name;
+        return this.state.categories.find(c => c.categoryId == categoryId)?.categoryName;
     }
 
     get_filter() {
+        let date = new Date(this.state.to);
+        date.setDate(date.getDate() + 1);
         return {
-            from: this.state.from,
-            to: this.state.to
+            from: dateTimeToBackendFormat(this.state.from),
+            to: dateTimeToBackendFormat(date),
+            categoryId: this.state.category == "Все" ? null : this.state.categories.find(e => e.categoryName == this.state.category).categoryId
         }
     }
 
@@ -95,6 +106,10 @@ class ExpensesComp extends Component {
 
     onClick(e) {
         this.get_expenses()
+    }
+
+    onChangeCategory(e) {
+        this.setState({category: e.target.value});
     }
 }
 
